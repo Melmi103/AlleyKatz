@@ -7,14 +7,15 @@ TagManager:
   - Fists
   - Knife
   - KnifeCrate
+  - Enemy
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Buildings
   - Water
   - UI
-  - 
+  - Player
   - 
   - 
   - 
