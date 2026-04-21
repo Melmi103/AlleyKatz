@@ -68,6 +68,11 @@ public class FistsBehaviour : MonoBehaviour
                 SetWeapon(WeaponType.Knife);
 
     }
+    void Hatchet()
+    {
+       
+                SetWeapon(WeaponType.Hatchet);
+    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("KnifeCrate"))
@@ -79,6 +84,7 @@ public class FistsBehaviour : MonoBehaviour
         else if (collision.gameObject.CompareTag("HatchetCrate"))
         {
             Debug.Log("Hatchet crate hit. Switching to Hatchet.");
+            Hatchet();
             Destroy(collision.gameObject);
         }
     }

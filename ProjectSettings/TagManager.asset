@@ -8,14 +8,15 @@ TagManager:
   - Knife
   - KnifeCrate
   - Enemy
+  - HatchetCrate
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Buildings
+  - Player
   - Water
   - UI
-  - Player
+  - Buildings
   - 
   - 
   - 
