@@ -9,6 +9,8 @@ TagManager:
   - KnifeCrate
   - Enemy
   - HatchetCrate
+  - MeleeEnemy
+  - RangedEnemy
   layers:
   - Default
   - TransparentFX

@@ -1,10 +1,13 @@
 using System;
 using UnityEngine;
-//This script manages the player's weapon state, sprites, animations, interactions with pickups and communicates weapon changes to other components.
+//This script manages the player's weapon state, sprites, animations, interactions with pickups, health and communicates weapon changes to other components.
 
 
 public class FistsBehaviour : MonoBehaviour
 {
+    [Header("Player Stats and Settings")]
+
+    [SerializeField] public int playerhealth = 100;
     public enum WeaponType {         
         Fists,
         Knife,
@@ -15,6 +18,7 @@ public class FistsBehaviour : MonoBehaviour
     [SerializeField] private GameObject hand; 
 
     public event Action<WeaponType> OnWeaponChanged;
+    public event Action<int> OnHealthChanged;
 
     public WeaponType GetCurrentWeapon => currentWeapon;
 
@@ -30,7 +34,6 @@ public class FistsBehaviour : MonoBehaviour
     void Start()
     {
         Fist();
-        currentWeapon = WeaponType.Fists;
     }
 
  
@@ -45,6 +48,7 @@ public class FistsBehaviour : MonoBehaviour
                 Knives();
                 break;
             case WeaponType.Hatchet:
+                Hatchet();
                 break;
             default:
                 Debug.Log("No weapon selected. Switching to default.");
