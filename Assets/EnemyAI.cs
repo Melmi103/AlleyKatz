@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -16,8 +19,8 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private int damage = 10;
 
     private int rotateddirection = 0;
-    private bool aimed = false;
-    private float timer = 0f;
+    private bool lockedon = false;
+    private float timer = 1f;
 
 
     public enum EnemyState
@@ -61,16 +64,14 @@ public class EnemyAI : MonoBehaviour
     void Update()
     {
         Enemy();
-        if (currentState == EnemyState.Chase)
-        {
-            AimAtPlayer();
-        }
+
     }
+
 
     void AimAtPlayer()
     {
         Vector3 dir = player.transform.position - transform.position;
-        if (timer < 1f)
+        if (timer == 1f)
         {
 
             if (isTopDown)
@@ -83,8 +84,9 @@ public class EnemyAI : MonoBehaviour
                     transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
                 else
                     transform.rotation = targetRot;
-                timer = timer + 1;
-                aimed = true;
+
+                StartCoroutine(LockOnAfterSeconds(0.5f));   
+
             }
 
         }
@@ -92,6 +94,17 @@ public class EnemyAI : MonoBehaviour
 
     }
 
+    private IEnumerator LockOnAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        lockedon = true;
+    }
+
+    private IEnumerator ResetStateAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        SetState(EnemyState.Idle);
+    }
 
 
     // Enemy type and state management. (What they do when in the state)
@@ -121,31 +134,33 @@ public class EnemyAI : MonoBehaviour
         switch (currentState)
         {
             case EnemyState.Idle:
-              if (Vector3.Distance(transform.position, player.transform.position) < detectionRange)
+                if (Vector3.Distance(transform.position, player.transform.position) < detectionRange)
                 {
-                    SetState(EnemyState.Chase);
-                }
-
-                break;
-            case EnemyState.Patrol:
-                break;
-            case EnemyState.Chase:
-                if (aimed)
-                {
-                    if (Vector3.Distance(transform.position, player.transform.position) < 10f)
+                    AimAtPlayer();
+                    if (lockedon == true)
                     {
                         SetState(EnemyState.Attack);
                     }
                 }
 
                 break;
+            case EnemyState.Patrol:
+                break;
+            case EnemyState.Chase:
+
+                break;
             case EnemyState.Attack:
 
-                gameObject.transform.position = Vector3.MoveTowards(transform.position, transform.forward, 9f * Time.deltaTime);
-                
+                transform.position += transform.up * 12f * Time.deltaTime;
+
+                StartCoroutine(ResetStateAfterSeconds(1f));
+                lockedon = false;
+                timer = 1f;
+
+
                 break;
 
-        }    
+        }
     }
     void RangedState()
     {
