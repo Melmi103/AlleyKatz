@@ -8,13 +8,13 @@ public class FistsBehaviour : MonoBehaviour
     [Header("Player Stats and Settings")]
 
     [SerializeField] public int playerhealth = 100;
-    public enum WeaponType {         
-        Fists,
-        Knife,
-        Hatchet
+    public enum WeaponType {        
+        Yarn,
+        Fire,
+        Ice
     }
 
-    [SerializeField] private WeaponType currentWeapon = WeaponType.Fists;
+    [SerializeField] private WeaponType currentWeapon = WeaponType.Yarn;
     [SerializeField] private GameObject hand; 
 
     public event Action<WeaponType> OnWeaponChanged;
@@ -33,7 +33,7 @@ public class FistsBehaviour : MonoBehaviour
 
     void Start()
     {
-        Fist();
+        YarnBall();
     }
 
  
@@ -41,14 +41,14 @@ public class FistsBehaviour : MonoBehaviour
     {
         switch (currentWeapon)
         {
-            case WeaponType.Fists:
-                Fist();
+            case WeaponType.Yarn:
+                YarnBall();
                 break;
-            case WeaponType.Knife:
-                Knives();
+            case WeaponType.Fire:
+                Fire();
                 break;
-            case WeaponType.Hatchet:
-                Hatchet();
+            case WeaponType.Ice:
+                Ice();
                 break;
             default:
                 Debug.Log("No weapon selected. Switching to default.");
@@ -56,39 +56,39 @@ public class FistsBehaviour : MonoBehaviour
         }
     }
 
-    void Fist()
+    void YarnBall()
     {
 
             // Fist-specific behavior (Sprites, anims, etc)
-            SetWeapon(WeaponType.Fists);
+            SetWeapon(WeaponType.Yarn);
 
     }
 
-  void Knives()
+  void Fire()
     {
       
             
         // Knife-specific behavior (Sprites, anims, etc)
-                SetWeapon(WeaponType.Knife);
+                SetWeapon(WeaponType.Fire);
 
     }
-    void Hatchet()
+    void Ice()
     {
        
-                SetWeapon(WeaponType.Hatchet);
+                SetWeapon(WeaponType.Ice);
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("KnifeCrate"))
         {
-            Debug.Log("Knife crate hit. Switching to Knife.");
-            Knives();
+            Debug.Log("Crate 2 hit. Switching to Fire.");
+            Fire();
             Destroy(collision.gameObject);
         }
         else if (collision.gameObject.CompareTag("HatchetCrate"))
         {
-            Debug.Log("Hatchet crate hit. Switching to Hatchet.");
-            Hatchet();
+            Debug.Log("Crate 3 hit. Switching to Ice.");
+            Ice();
             Destroy(collision.gameObject);
         }
     }

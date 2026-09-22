@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class Movement : MonoBehaviour
 {
-    private bool isHoldingShift;
+    [SerializeField] private int speed = 6;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -14,33 +14,29 @@ public class Movement : MonoBehaviour
 
    void MoveLeft()
     {
-        if (isHoldingShift) transform.Translate(Vector2.left * Time.deltaTime * 8);
-        else
-        transform.Translate(Vector2.left * Time.deltaTime * 4);
+        
+        transform.Translate(Vector2.left * Time.deltaTime * speed);
     }
     void MoveRight()
     {
-        if (isHoldingShift) transform.Translate(Vector2.right * Time.deltaTime * 8);
-        else
-        transform.Translate(Vector2.right * Time.deltaTime * 4);
+
+        transform.Translate(Vector2.right * Time.deltaTime * speed);
     }
     void MoveForward()
     {
-        if (isHoldingShift) transform.Translate(Vector2.up * Time.deltaTime * 8);
-        else
-        transform.Translate(Vector2.up * Time.deltaTime * 4);
+        
+        transform.Translate(Vector2.up * Time.deltaTime * speed);
     }
     void MoveBackward()
     {
-        if (isHoldingShift) transform.Translate(Vector2.down * Time.deltaTime * 8);
-        else
-        transform.Translate(Vector2.down * Time.deltaTime * 4);
+
+        transform.Translate(Vector2.down * Time.deltaTime * speed);
     }
 
     // Update is called once per frame
     void Update()
     {
-        isHoldingShift = Input.GetKey(KeyCode.LeftShift);
+      
 
         if (Input.GetKey(KeyCode.W)) MoveForward();
         if (Input.GetKey(KeyCode.S)) MoveBackward();

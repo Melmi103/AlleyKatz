@@ -9,14 +9,13 @@ public class EnemyAI : MonoBehaviour
 {
     [Header("Enemy Stats and Settings")]
 
-    [SerializeField] private int enemyHealth = 100;
+    [SerializeField] public int enemyHealth = 100;
     [SerializeField] private float detectionRange = 0.0f;
     [SerializeField] private GameObject player;
     [SerializeField] private bool isTopDown = true;
     [SerializeField] private float rotationSpeed = 100f;
     [SerializeField] private bool smoothRotation = true;
     [SerializeField] private float angleoffset = 4.0f;
-    [SerializeField] private int damage = 10;
 
     private int rotateddirection = 0;
     private bool lockedon = false;
@@ -42,6 +41,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private EnemyType currentType;
 
     private event Action<EnemyState> OnStateChanged;
+    public event Action<int> OnHealthChanged;
 
 
 
@@ -54,6 +54,26 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+
+
+    public int GetHealth()
+    {
+        return enemyHealth;
+    }
+
+    public void SetHealth(int newHealth)
+    {
+        enemyHealth = newHealth;
+        if (enemyHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Destroy(gameObject);
+    }
 
     void Start()
     {
@@ -128,6 +148,8 @@ public class EnemyAI : MonoBehaviour
         }
 
     }
+
+  
     void MeleeState()
     {
         //Debug.Log("Melee Enemy");
@@ -178,4 +200,6 @@ public class EnemyAI : MonoBehaviour
 
         }
     }
+
+ 
 }
