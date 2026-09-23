@@ -129,8 +129,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6354963}
   - component: {fileID: 6354964}
-  - component: {fileID: 6354966}
   - component: {fileID: 6354967}
+  - component: {fileID: 6354968}
   m_Layer: 3
   m_Name: Hand
   m_TagString: Fists
@@ -176,7 +176,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31d0dcc6f2dd4e4408d18036a2c93862, type: 2}
+  - {fileID: -876546973899608171, guid: 3739e562a03fc0b4982d8aa66cc50865, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -197,7 +197,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -208,22 +208,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &6354966
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6354962}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51b2037d73f9ea349bbe2402da763774, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fistsBehaviour: {fileID: 0}
-  currentWeapon: 0
-  enemy: {fileID: 0}
-  damage: 30
 --- !u!61 &6354967
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -258,7 +242,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 1.1857065, y: -0.16504122}
+  m_Offset: {x: -0.00012218952, y: -0.0061811507}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -268,8 +252,20 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.371413, y: 0.6699176}
+  m_Size: {x: 0.9997554, y: 0.9876376}
   m_EdgeRadius: 0
+--- !u!114 &6354968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6354962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06ee69ea429016c42a6b2aeb09bfeb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &19789157
 GameObject:
   m_ObjectHideFlags: 0
