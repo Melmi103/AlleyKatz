@@ -1128,7 +1128,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 1
-  m_Mass: 0.2834531
+  m_Mass: 0.86595416
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0
@@ -1155,8 +1155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7a3ffc45fcb8e24ea364cdeae14cb3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meleeenemyHealth: 120
-  rangedenemyHealth: 80
+  enemyHealth: 100
   detectionRange: 10
   player: {fileID: 19789157}
   isTopDown: 1
@@ -1266,8 +1265,8 @@ Transform:
   m_GameObject: {fileID: 2017242410}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -18.7905, y: 4.8188, z: 0}
-  m_LocalScale: {x: 0.5521712, y: 0.8846007, z: 1}
+  m_LocalPosition: {x: -18.53, y: 5.34, z: 0}
+  m_LocalScale: {x: 1.07325, y: 1.4058, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1294,19 +1293,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5558329827168535238, guid: 5e3632e8ebcc72f4ba9bf1b52dffe6c7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.5521712
+      value: 1.07325
       objectReference: {fileID: 0}
     - target: {fileID: 5558329827168535238, guid: 5e3632e8ebcc72f4ba9bf1b52dffe6c7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.8846007
+      value: 1.4058
       objectReference: {fileID: 0}
     - target: {fileID: 5558329827168535238, guid: 5e3632e8ebcc72f4ba9bf1b52dffe6c7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -18.7905
+      value: -18.53
       objectReference: {fileID: 0}
     - target: {fileID: 5558329827168535238, guid: 5e3632e8ebcc72f4ba9bf1b52dffe6c7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.8188
+      value: 5.34
       objectReference: {fileID: 0}
     - target: {fileID: 5558329827168535238, guid: 5e3632e8ebcc72f4ba9bf1b52dffe6c7, type: 3}
       propertyPath: m_LocalPosition.z

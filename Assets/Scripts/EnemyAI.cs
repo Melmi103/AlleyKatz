@@ -7,11 +7,14 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
-    [Header("Enemy Stats and Settings")]
+    [Header("Main Enemy Stats and Settings")]
 
-    [SerializeField] public int enemyHealth = 100;
-    [SerializeField] private float detectionRange = 0.0f;
+    [SerializeField] public int meleeenemyHealth = 120;
+    [SerializeField] public int rangedenemyHealth = 80;
     [SerializeField] private GameObject player;
+
+    [Header("Melee Enemy Settings")]
+    [SerializeField] private float detectionRange = 0.0f;
     [SerializeField] private bool isTopDown = true;
     [SerializeField] private float rotationSpeed = 100f;
     [SerializeField] private bool smoothRotation = true;
@@ -21,13 +24,28 @@ public class EnemyAI : MonoBehaviour
     private bool lockedon = false;
     private float timer = 1f;
 
+    [Header("Ranged Enemy Settings")]
+    [SerializeField] private float minSafeDistance = 5f;
+    [SerializeField] private float fleeSpeed = 5f;
+    [SerializeField] private float attackRange = 10f;
+    [SerializeField] GameObject projectilePrefab;
+    [SerializeField] Transform firePoint;
+    [SerializeField] float fireRate = 1f;
+    [SerializeField] float projectileSpeed = 10f;
+    float nextFireTime = 0f;
+
+    [Header("Xtras")]
+    [SerializeField] private bool useSpriteFlip = true;
+    [SerializeField] private SpriteRenderer visualSprite;
+
+
+
 
     public enum EnemyState
     {
         Idle,
-        Patrol,
-        Chase,
-        Attack
+        Attack,
+        Flee,
     }
     public enum EnemyType
     {
@@ -58,15 +76,32 @@ public class EnemyAI : MonoBehaviour
 
     public int GetHealth()
     {
-        return enemyHealth;
+        return currentType switch
+        {
+            EnemyType.ranged => rangedenemyHealth,
+            EnemyType.melee => meleeenemyHealth,
+            _ => throw new InvalidOperationException($"Unknown EnemyType: {currentType}")
+        };
     }
 
+    //health setters
     public void SetHealth(int newHealth)
     {
-        enemyHealth = newHealth;
-        if (enemyHealth <= 0)
+        if (currentType == EnemyType.melee)
         {
-            Die();
+            meleeenemyHealth = newHealth;
+            if (meleeenemyHealth <= 0)
+            {
+                Die();
+            }
+        }
+        if (currentType == EnemyType.ranged)
+        {
+            rangedenemyHealth = newHealth;
+            if (rangedenemyHealth <= 0)
+            {
+                Die();
+            }
         }
     }
 
@@ -78,6 +113,8 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         SetState(EnemyState.Idle);
+        Debug.Log("Melee Enemy Health: " + meleeenemyHealth);
+        Debug.Log("Ranged Enemy Health: " + rangedenemyHealth);
     }
 
    
@@ -114,6 +151,40 @@ public class EnemyAI : MonoBehaviour
 
     }
 
+    void FleeFromPlayer()
+    {
+        Vector3 fleeDir = transform.position - player.transform.position;
+        fleeDir.z = 0f;
+        fleeDir.Normalize();
+
+        transform.position += fleeDir * fleeSpeed * Time.deltaTime;
+
+
+    }
+
+    void RangeShootAtPlayer()
+    {
+        Vector3 aimDir = player.transform.position - firePoint.position;
+        aimDir.z = 0f;
+        aimDir.Normalize();
+
+
+       GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        
+        Projectile proj = projectile.GetComponent<Projectile>();
+        proj.Init(aimDir, projectileSpeed);
+        
+        Collider2D projectileCollider = GetComponent<Collider2D>();
+        Collider2D enemyCol = projectile.GetComponent<Collider2D>();
+        if (projectileCollider != null && enemyCol != null)
+        {
+            Physics2D.IgnoreCollision(projectileCollider, enemyCol);
+        }
+
+
+
+    }
+
     private IEnumerator LockOnAfterSeconds(float seconds)
     {
         yield return new WaitForSeconds(seconds);
@@ -132,6 +203,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (gameObject.CompareTag("MeleeEnemy"))
             currentType = EnemyType.melee;
+            
 
         else if (gameObject.CompareTag("RangedEnemy"))
             currentType = EnemyType.ranged;
@@ -166,11 +238,6 @@ public class EnemyAI : MonoBehaviour
                 }
 
                 break;
-            case EnemyState.Patrol:
-                break;
-            case EnemyState.Chase:
-
-                break;
             case EnemyState.Attack:
 
                 transform.position += transform.up * 12f * Time.deltaTime;
@@ -178,24 +245,50 @@ public class EnemyAI : MonoBehaviour
                 StartCoroutine(ResetStateAfterSeconds(1f));
                 lockedon = false;
                 timer = 1f;
-
-
                 break;
 
         }
     }
     void RangedState()
     {
-       // Debug.Log("Ranged Enemy");
         switch (currentState)
         {
             case EnemyState.Idle:
-                break;
-            case EnemyState.Patrol:
-                break;
-            case EnemyState.Chase:
+                Debug.Log("RangedEnemy is Idle!");
+                if (Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
+                {
+                    SetState(EnemyState.Flee);
+                }
+                if (Vector3.Distance(transform.position, player.transform.position) < attackRange && Vector3.Distance(transform.position, player.transform.position) > minSafeDistance)
+                {
+                   SetState(EnemyState.Attack);
+                }
                 break;
             case EnemyState.Attack:
+                Debug.Log("RangedEnemy is Attacking!");
+                if (Time.time >= nextFireTime)
+                {
+                    nextFireTime = Time.time + 1f / fireRate;
+                    RangeShootAtPlayer();
+                }
+               
+
+                if(Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
+                {
+                    SetState(EnemyState.Flee);
+                }
+                break;
+            case EnemyState.Flee:
+                if (Vector3.Distance(transform.position, player.transform.position) > minSafeDistance)
+                {
+                  SetState(EnemyState.Idle);
+                  Debug.Log("RangedEnemy is Idle!");
+               }
+                else
+                {
+                    Debug.Log("RangedEnemy is Fleeing!");
+                    FleeFromPlayer();
+                }
                 break;
 
         }
