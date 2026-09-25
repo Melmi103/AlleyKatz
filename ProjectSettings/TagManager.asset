@@ -11,15 +11,16 @@ TagManager:
   - HatchetCrate
   - MeleeEnemy
   - RangedEnemy
+  - EnemyProjectile
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - Back
   - Water
   - UI
-  - Buildings
-  - 
+  - Middle
+  - Front
   - 
   - 
   - 

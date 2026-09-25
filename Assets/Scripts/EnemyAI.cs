@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
@@ -11,13 +12,17 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] public int meleeenemyHealth = 120;
     [SerializeField] public int rangedenemyHealth = 80;
-    [SerializeField] private GameObject player;
+    [SerializeField] public GameObject player;
+    [SerializeField] private Projectile projectile;
+    private Transform playerTransform;
+
 
     [Header("Melee Enemy Settings")]
     [SerializeField] private float detectionRange = 0.0f;
     [SerializeField] private bool isTopDown = true;
     [SerializeField] private float rotationSpeed = 100f;
     [SerializeField] private bool smoothRotation = true;
+    [SerializeField] private int MeleeDamage = 20;
     [SerializeField] private float angleoffset = 4.0f;
 
     private int rotateddirection = 0;
@@ -28,20 +33,45 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float minSafeDistance = 5f;
     [SerializeField] private float fleeSpeed = 5f;
     [SerializeField] private float attackRange = 10f;
-    [SerializeField] GameObject projectilePrefab;
-    [SerializeField] Transform firePoint;
-    [SerializeField] float fireRate = 1f;
-    [SerializeField] float projectileSpeed = 10f;
-    float nextFireTime = 0f;
+
+    public float newFireRate;
+    public float newFireTime;
+
+
 
     [Header("Xtras")]
     [SerializeField] private bool useSpriteFlip = true;
     [SerializeField] private SpriteRenderer visualSprite;
 
+    private void Awake()
+    {
+     if (projectile == null)
+        {
+            projectile = GameObject.Find("Projectile").GetComponent<Projectile>();
+        }
+
+     else if (projectile != null)
+        {  
+            newFireRate = projectile.fireRate;
+            newFireTime = projectile.nextFireTime;
+            Debug.Log("Found projectile component");
+        }
+
+     if (player == null)
+        {
+            player = GameObject.FindGameObjectWithTag("Player");
+        }
+     else if (player != null)
+        {
+            Debug.Log("Found player object");
+        }
+
+    }
 
 
 
-    public enum EnemyState
+
+public enum EnemyState
     {
         Idle,
         Attack,
@@ -122,6 +152,7 @@ public class EnemyAI : MonoBehaviour
     {
         Enemy();
 
+
     }
 
 
@@ -159,31 +190,33 @@ public class EnemyAI : MonoBehaviour
 
         transform.position += fleeDir * fleeSpeed * Time.deltaTime;
 
-
-    }
-
-    void RangeShootAtPlayer()
-    {
-        Vector3 aimDir = player.transform.position - firePoint.position;
-        aimDir.z = 0f;
-        aimDir.Normalize();
-
-
-       GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-        
-        Projectile proj = projectile.GetComponent<Projectile>();
-        proj.Init(aimDir, projectileSpeed);
-        
-        Collider2D projectileCollider = GetComponent<Collider2D>();
-        Collider2D enemyCol = projectile.GetComponent<Collider2D>();
-        if (projectileCollider != null && enemyCol != null)
+        if (transform.position.x < player.transform.position.x)
         {
-            Physics2D.IgnoreCollision(projectileCollider, enemyCol);
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else if (transform.position.x > player.transform.position.x)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
         }
 
 
-
     }
+
+    void FacePlayer()
+    {
+        new WaitForSeconds(0.5f);
+
+        if (transform.position.x < player.transform.position.x)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        else if (transform.position.x > player.transform.position.x)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+    }
+
+  
 
     private IEnumerator LockOnAfterSeconds(float seconds)
     {
@@ -203,14 +236,14 @@ public class EnemyAI : MonoBehaviour
     {
         if (gameObject.CompareTag("MeleeEnemy"))
             currentType = EnemyType.melee;
-            
+
 
         else if (gameObject.CompareTag("RangedEnemy"))
             currentType = EnemyType.ranged;
 
         switch (currentType)
         {
-            
+
             case EnemyType.melee:
                 MeleeState();
                 break;
@@ -221,7 +254,8 @@ public class EnemyAI : MonoBehaviour
 
     }
 
-  
+
+
     void MeleeState()
     {
         //Debug.Log("Melee Enemy");
@@ -254,7 +288,7 @@ public class EnemyAI : MonoBehaviour
         switch (currentState)
         {
             case EnemyState.Idle:
-                Debug.Log("RangedEnemy is Idle!");
+              //  Debug.Log("RangedEnemy is Idle!");
                 if (Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
                 {
                     SetState(EnemyState.Flee);
@@ -265,15 +299,14 @@ public class EnemyAI : MonoBehaviour
                 }
                 break;
             case EnemyState.Attack:
-                Debug.Log("RangedEnemy is Attacking!");
-                if (Time.time >= nextFireTime)
+                // Debug.Log("RangedEnemy is Attacking!");
+                if (Time.time >= newFireTime)
                 {
-                    nextFireTime = Time.time + 1f / fireRate;
-                    RangeShootAtPlayer();
+                    newFireTime = Time.time + 1f / newFireRate;
+                    projectile.RangeShootAtPlayer();
                 }
-               
-
-                if(Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
+                FacePlayer();
+                if (Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
                 {
                     SetState(EnemyState.Flee);
                 }
@@ -282,11 +315,11 @@ public class EnemyAI : MonoBehaviour
                 if (Vector3.Distance(transform.position, player.transform.position) > minSafeDistance)
                 {
                   SetState(EnemyState.Idle);
-                  Debug.Log("RangedEnemy is Idle!");
+                  //Debug.Log("RangedEnemy is Idle!");
                }
                 else
                 {
-                    Debug.Log("RangedEnemy is Fleeing!");
+                   // Debug.Log("RangedEnemy is Fleeing!");
                     FleeFromPlayer();
                 }
                 break;
