@@ -14,6 +14,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] public int rangedenemyHealth = 80;
     [SerializeField] public GameObject player;
     [SerializeField] private Projectile projectile;
+    [SerializeField] private GameObject shot;
     private Transform playerTransform;
 
 
@@ -24,6 +25,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private bool smoothRotation = true;
     [SerializeField] private int MeleeDamage = 20;
     [SerializeField] private float angleoffset = 4.0f;
+   
 
     private int rotateddirection = 0;
     private bool lockedon = false;
@@ -33,6 +35,8 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float minSafeDistance = 5f;
     [SerializeField] private float fleeSpeed = 5f;
     [SerializeField] private float attackRange = 10f;
+    [SerializeField] private Animator animator;
+   
 
     public float newFireRate;
     public float newFireTime;
@@ -45,27 +49,46 @@ public class EnemyAI : MonoBehaviour
 
     private void Awake()
     {
-     if (projectile == null)
-        {
-            projectile = GameObject.Find("Projectile").GetComponent<Projectile>();
-        }
+    
+        
+            if (shot == null)
+            {
+                shot = Resources.Load<GameObject>("Yarn");
+            }
+            else if (shot != null)
+            {
+                Debug.Log("Found Shot object");
+            }
 
-     else if (projectile != null)
-        {  
-            newFireRate = projectile.fireRate;
-            newFireTime = projectile.nextFireTime;
-            Debug.Log("Found projectile component");
-        }
-
-     if (player == null)
+        if (projectile == null)
         {
-            player = GameObject.FindGameObjectWithTag("Player");
-        }
-     else if (player != null)
-        {
-            Debug.Log("Found player object");
-        }
+            
+            if (shot != null)
+            {
+                projectile = shot.GetComponent<Projectile>();
+            }
+       
+            if (projectile != null)
+            {
+                newFireRate = projectile.GetComponent<Projectile>().fireRate;
+                newFireTime = projectile.GetComponent<Projectile>().nextFireTime;
+                Debug.Log("Found projectile component");
+            }
 
+            if (player == null)
+            {
+                var Player = GameObject.FindWithTag("Player");
+                if (Player != null)
+                {
+                    player = Resources.Load<GameObject>("Player");
+                }
+                else return;
+
+            }
+
+
+
+        }
     }
 
 
@@ -297,24 +320,30 @@ public enum EnemyState
                 {
                    SetState(EnemyState.Attack);
                 }
+                animator.SetBool("IsRunning", false);
                 break;
             case EnemyState.Attack:
                 // Debug.Log("RangedEnemy is Attacking!");
                 if (Time.time >= newFireTime)
                 {
                     newFireTime = Time.time + 1f / newFireRate;
-                    projectile.RangeShootAtPlayer();
+                    projectile.GetComponent<Projectile>().RangeShootAtPlayer();
                 }
                 FacePlayer();
                 if (Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
                 {
                     SetState(EnemyState.Flee);
+                   
+                
                 }
+                animator.SetBool("IsRunning", false);
                 break;
             case EnemyState.Flee:
                 if (Vector3.Distance(transform.position, player.transform.position) > minSafeDistance)
                 {
-                  SetState(EnemyState.Idle);
+                 
+
+                    SetState(EnemyState.Idle);
                   //Debug.Log("RangedEnemy is Idle!");
                }
                 else
@@ -322,6 +351,7 @@ public enum EnemyState
                    // Debug.Log("RangedEnemy is Fleeing!");
                     FleeFromPlayer();
                 }
+                animator.SetBool("IsRunning", true);
                 break;
 
         }

@@ -12,10 +12,11 @@ public class Projectile : MonoBehaviour
     [SerializeField] float projectileSpeed = 10f;
     [SerializeField] float lifeTime = 5f;
     [SerializeField] GameObject lastSpawnedProjectile;
-    [SerializeField] GameObject projectilePrefab;
+    [SerializeField] GameObject ShotPrefab;
     public float nextFireTime = 0f;
     private Rigidbody2D rb;
     private Transform playerTransform;
+    private PlayerData PlayerData;
 
     void Awake()
     {
@@ -23,11 +24,20 @@ public class Projectile : MonoBehaviour
 
         if (player == null)
         {
-            player = GameObject.FindGameObjectWithTag("Player");
+            player = Resources.Load<GameObject>("Player");
         }
         else if (player != null)
         {
             Debug.Log("Found player object");
+        }
+
+        if (PlayerData == null)
+        {
+            PlayerData = player.GetComponent<PlayerData>();
+        }
+        else if (PlayerData != null)
+        {
+            Debug.Log("Found PlayerHealth component");
         }
     }
 
@@ -49,7 +59,7 @@ public class Projectile : MonoBehaviour
         aimDir.Normalize();
 
 
-        lastSpawnedProjectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        lastSpawnedProjectile = Instantiate(ShotPrefab, firePoint.position, Quaternion.identity);
 
         Projectile proj = lastSpawnedProjectile.GetComponent<Projectile>();
         proj.Init(aimDir, projectileSpeed);
@@ -69,6 +79,8 @@ public class Projectile : MonoBehaviour
         {
 
             Debug.Log("Projectile hit the player!");
+            PlayerData.SetHealth(PlayerData.GetHealth() - RangedDamage);
+
             Destroy(gameObject);
         }
     }

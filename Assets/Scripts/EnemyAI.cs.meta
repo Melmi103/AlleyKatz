@@ -1,2 +1,16 @@
 fileFormatVersion: 2
 guid: f7a3ffc45fcb8e24ea364cdeae14cb3d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - player: {fileID: 5999600096107422462, guid: df224d768c3625f4688c6625a685ae85, type: 3}
+  - projectile: {instanceID: 0}
+  - shot: {fileID: 826000881094524890, guid: 1ca89b6b4526fd5439f498f039d834d1, type: 3}
+  - animator: {instanceID: 0}
+  - visualSprite: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
