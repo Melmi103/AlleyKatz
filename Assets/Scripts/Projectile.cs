@@ -10,7 +10,7 @@ public class Projectile : MonoBehaviour
     [SerializeField] Transform firePoint;
     [SerializeField] float lifetime = 5f;
     [SerializeField] public float projectileSpeed = 1;
-    [SerializeField] public int damage = 5;
+    [SerializeField] public int damage = 20;
    
     
     private Rigidbody2D rb;

@@ -1,5 +1,7 @@
+using NUnit.Framework.Internal;
 using System;
 using System.Collections;
+using UnityEditor.SearchService;
 using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
@@ -15,13 +17,16 @@ public class EnemyAI : MonoBehaviour
 
 
     [Header("Melee Enemy Settings")]
-    [SerializeField] private float detectionRange = 0.0f;
+    [SerializeField] private float detectionRange = 2f;
     [SerializeField] private bool isTopDown = true;
     [SerializeField] private float rotationSpeed = 100f;
     [SerializeField] private bool smoothRotation = true;
     [SerializeField] private int MeleeDamage = 20;
     [SerializeField] private float angleoffset = 4.0f;
-   
+    private float MeleeSpeed;
+    private float MeleeRandomDistance;
+    private Vector3 meleeTargetPosition;
+
 
     private int rotateddirection = 0;
     private bool lockedon = false;
@@ -123,6 +128,7 @@ public enum EnemyState
             _ => throw new InvalidOperationException($"Unknown EnemyType: {currentType}")
         };
     }
+    
 
     //health setters
     public void SetHealth(int newHealth)
@@ -204,6 +210,7 @@ public enum EnemyState
 
     void AimAtPlayer()
     {
+        
         Vector3 dir = player.transform.position - transform.position;
         if (timer == 1f)
         {
@@ -305,29 +312,51 @@ public enum EnemyState
 
     void MeleeState()
     {
-        //Debug.Log("Melee Enemy");
+        if (player == null) return;
+
         switch (currentState)
         {
             case EnemyState.Idle:
-                if (Vector3.Distance(transform.position, player.transform.position) < detectionRange)
-                {
+              
+                //if (detectionRange <= 0f || Vector3.Distance(transform.position, player.transform.position) < detectionRange)
+               // {
+                    MeleeRandomDistance = Randomizer.CreateRandomizer().NextFloat(0.5f, 50f);
+
+                  
+                    Vector3 dirToPlayer = player.transform.position - transform.position;
+                    dirToPlayer.z = 0f;
+                    meleeTargetPosition = transform.position + dirToPlayer.normalized * MeleeRandomDistance;
+
                     AimAtPlayer();
-                    if (lockedon == true)
-                    {
+
+                    if (lockedon)
                         SetState(EnemyState.Attack);
-                    }
-                }
-
+               // }
                 break;
-            case EnemyState.Attack:
 
-                transform.position += transform.up * 12f * Time.deltaTime;
+            case EnemyState.Attack:
+             
+                MeleeSpeed = Randomizer.CreateRandomizer().NextFloat(5f, 20f);
+
+                Vector3 toTarget = meleeTargetPosition - transform.position;
+                toTarget.z = 0f;
+                float dist = toTarget.magnitude;
+
+             
+                if (dist > 0.1f)
+                {
+                    transform.position += toTarget.normalized * MeleeSpeed * Time.deltaTime;
+                    //Debug.DrawLine(transform.position, meleeTargetPosition, Color.red, 0.1f);
+                }
+                else
+                {
+                    SetState(EnemyState.Idle);
+                }
 
                 StartCoroutine(ResetStateAfterSeconds(1f));
                 lockedon = false;
                 timer = 1f;
                 break;
-
         }
     }
     void RangedState()

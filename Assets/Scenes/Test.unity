@@ -34213,7 +34213,7 @@ PrefabInstance:
       objectReference: {fileID: 19789157}
     - target: {fileID: 7093802014181376095, guid: 380d5e6ee0bad18499ee33b52c7d69ea, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -88.4342
+      value: -148886
       objectReference: {fileID: 0}
     - target: {fileID: 7093802014181376095, guid: 380d5e6ee0bad18499ee33b52c7d69ea, type: 3}
       propertyPath: m_LocalPosition.y
@@ -34254,6 +34254,10 @@ PrefabInstance:
     - target: {fileID: 7808792642161876726, guid: 380d5e6ee0bad18499ee33b52c7d69ea, type: 3}
       propertyPath: m_Name
       value: EnemyMelee
+      objectReference: {fileID: 0}
+    - target: {fileID: 7808792642161876726, guid: 380d5e6ee0bad18499ee33b52c7d69ea, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9082809745819373937, guid: 380d5e6ee0bad18499ee33b52c7d69ea, type: 3}
       propertyPath: m_IsTrigger
@@ -35128,6 +35132,14 @@ PrefabInstance:
       propertyPath: enemyRanged
       value: 
       objectReference: {fileID: 1347243251}
+    - target: {fileID: 4417333321026051551, guid: 89abfbbb84d4af149bde79ac6a494baa, type: 3}
+      propertyPath: meleeEnemiesToSpawn
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4417333321026051551, guid: 89abfbbb84d4af149bde79ac6a494baa, type: 3}
+      propertyPath: MeleeswarmerInterval
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8890079599686503487, guid: 89abfbbb84d4af149bde79ac6a494baa, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.27

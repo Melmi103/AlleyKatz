@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
             [SerializeField] private int currentLevel = 1;
             [SerializeField] private int meleeEnemiesToSpawn = 0;
             [SerializeField] private int rangedEnemiesToSpawn = 0;
+             private int enemiesLeft = 0;
 
             public static Vector3 RandomSpawnPositionAround(Transform spawner, float width = 10f, float height = 10f)
     {
@@ -48,6 +49,8 @@ public class GameManager : MonoBehaviour
                 return;
             }
         }
+        
+        enemiesLeft = meleeEnemiesToSpawn + rangedEnemiesToSpawn;
     }
 
     void Start()
@@ -55,6 +58,12 @@ public class GameManager : MonoBehaviour
         //StartCoroutine(spawnMeleeEnemy(MeleeswarmerInterval, enemyMelee));
         //StartCoroutine(spawnRangedEnemy(RangedswarmerInterval, enemyRanged));
         levelOne();
+        
+
+        if (enemiesLeft == 0)
+        {
+            Debug.Log("All enemies have been spawned.");
+        }
 
     }
 
@@ -81,7 +90,7 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < rangedEnemiesToSpawn; i++)
         {
-            yield return new WaitForSeconds(interval);
+            yield return new WaitForSeconds(0);
             if (enemyRanged != null)
             {
                 Instantiate(enemyRanged, new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f)), Quaternion.identity);
@@ -95,7 +104,8 @@ public class GameManager : MonoBehaviour
 
     void levelOne()
     {
-        meleeEnemiesToSpawn = 30;
+        meleeEnemiesToSpawn = 10;
+        
         StartCoroutine(spawnMeleeEnemy(MeleeswarmerInterval, enemyMelee));
         StartCoroutine(spawnRangedEnemy(RangedswarmerInterval, enemyRanged));
 

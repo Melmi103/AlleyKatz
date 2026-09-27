@@ -7,6 +7,7 @@ public class Movement : MonoBehaviour
     [SerializeField] private int speed = 6;
     [SerializeField] private Animator animator;
     [SerializeField] private bool isMoving = false;
+    [SerializeField] private bool isDead = false;
 
     
 
@@ -45,52 +46,61 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        Vector2 mouseScreen;
-        if (Mouse.current != null)
+        if (isDead == false)
         {
-            mouseScreen = Mouse.current.position.ReadValue();
-        }
-        else
-        {
-            mouseScreen = Input.mousePosition;
-        }
-
-        if (mouseScreen.x < Screen.width / 2)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-        else
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
 
 
+            Vector2 mouseScreen;
+            if (Mouse.current != null)
+            {
+                mouseScreen = Mouse.current.position.ReadValue();
+            }
+            else
+            {
+                mouseScreen = Input.mousePosition;
+            }
 
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
-        {
-            isMoving = true;
-          
-        }
-        else
-        {
-            isMoving = false;
-        }
-        if (Input.GetKey(KeyCode.W)) MoveForward();
-        if (Input.GetKey(KeyCode.S)) MoveBackward();
-        if (Input.GetKey(KeyCode.A)) MoveLeft();
-        if (Input.GetKey(KeyCode.D)) MoveRight();
+            if (mouseScreen.x < Screen.width / 2)
+            {
+                transform.localScale = new Vector3(-1, 1, 1);
+            }
+            else
+            {
+                transform.localScale = new Vector3(1, 1, 1);
+            }
 
-        if (isMoving == true)
-        {
-            animator.SetBool("IsRunning", true);
-        }
 
-        else
+
+            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+            {
+                isMoving = true;
+
+            }
+            else
+            {
+                isMoving = false;
+            }
+            if (Input.GetKey(KeyCode.W)) MoveForward();
+            if (Input.GetKey(KeyCode.S)) MoveBackward();
+            if (Input.GetKey(KeyCode.A)) MoveLeft();
+            if (Input.GetKey(KeyCode.D)) MoveRight();
+
+            if (isMoving == true)
+            {
+                animator.SetBool("IsRunning", true);
+            }
+
+            else
+            {
+                animator.SetBool("IsRunning", false);
+            }
+        }
+        else 
         {
             animator.SetBool("IsRunning", false);
+            return;
         }
- 
+
     }
 }
 

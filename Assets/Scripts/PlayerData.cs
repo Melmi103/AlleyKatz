@@ -10,7 +10,7 @@ public class PlayerData : MonoBehaviour
 {
     [Header("Player Stats and Settings")]
 
-    [SerializeField] public int playerhealth = 100;
+    [SerializeField] public int playerhealth = 120;
     public enum WeaponType {        
         Yarn,
         Fire,
@@ -23,7 +23,10 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private GameObject EnemyMelee;
     [SerializeField] public GameObject shot;
     [SerializeField] private float lifetime = 5f;
-   
+    [SerializeField] private float cooldown = 2f;
+    
+
+    private float lastShotTime = -Mathf.Infinity;
 
     public event Action<WeaponType> OnWeaponChanged;
     public event Action<int> OnHealthChanged;
@@ -56,6 +59,7 @@ public class PlayerData : MonoBehaviour
         {
             Debug.Log("Found Shot");
         }    
+        
 
     }
 
@@ -78,6 +82,11 @@ public class PlayerData : MonoBehaviour
         OnHealthChanged?.Invoke(playerhealth);
         return playerhealth;
     }
+    
+        
+    
+
+    
 
 
     void Start()
@@ -127,9 +136,18 @@ public class PlayerData : MonoBehaviour
        
                 SetWeapon(WeaponType.Ice);
     }
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-     
+    private void OnTriggerEnter2D(Collider2D collision)
+    { 
+        if (collision.CompareTag("MeleeEnemy"))
+        {
+            SetHealth(playerhealth - 10);
+            Debug.Log("Player hit! Health: " + playerhealth);
+            if (playerhealth <= 0)
+            {
+                Destroy(gameObject);
+            }
+        }
+
     }
     void Shoot()
     {
@@ -160,9 +178,11 @@ public class PlayerData : MonoBehaviour
 
       
         bool clicked = (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) || Input.GetMouseButtonDown(0);
-        if (clicked)
+        if (clicked && Time.time - lastShotTime >= cooldown)
         {
-            Shoot();
+      
+                Shoot();
+            lastShotTime = Time.time;
         }
     }
 }
