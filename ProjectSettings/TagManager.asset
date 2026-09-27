@@ -12,6 +12,7 @@ TagManager:
   - MeleeEnemy
   - RangedEnemy
   - EnemyProjectile
+  - PlayerProjectile
   layers:
   - Default
   - TransparentFX

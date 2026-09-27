@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1107924175409721220}
   - component: {fileID: 2421271691271268206}
   - component: {fileID: 6384388940336513650}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: EnemyRanged
   m_TagString: RangedEnemy
   m_Icon: {fileID: 0}
@@ -79,7 +79,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: -5457572919755118138, guid: 6d3733569f720844db854bb3642cb987, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -125,8 +125,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.062896445, y: -0.31994653}
-  m_Size: {x: 1.1510832, y: 2.107483}
+  m_Offset: {x: 0.05829811, y: -0.063786745}
+  m_Size: {x: 0.6112213, y: 1.8044982}
   m_Direction: 0
 --- !u!114 &2421271691271268206
 MonoBehaviour:
@@ -142,22 +142,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meleeenemyHealth: 120
   rangedenemyHealth: 80
-  player: {fileID: 5999600096107422462, guid: df224d768c3625f4688c6625a685ae85, type: 3}
-  projectile: {fileID: 0}
+  player: {fileID: 0}
+  projectile: {fileID: 863463970749692125, guid: 1ca89b6b4526fd5439f498f039d834d1, type: 3}
+  shot: {fileID: 826000881094524890, guid: 1ca89b6b4526fd5439f498f039d834d1, type: 3}
   detectionRange: 0
   isTopDown: 1
   rotationSpeed: 100
   smoothRotation: 1
   MeleeDamage: 20
   angleoffset: 4
-  minSafeDistance: 5
+  minSafeDistance: 10
   fleeSpeed: 5
   attackRange: 10
+  lastSpawnedProjectile: {fileID: 0}
   animator: {fileID: 6384388940336513650}
+  ShotPrefab: {fileID: 826000881094524890, guid: 1ca89b6b4526fd5439f498f039d834d1, type: 3}
+  projectileSpeed: 10
+  lifeTime: 5
+  firePoint: {fileID: 1707020517229559243}
   newFireRate: 0
   newFireTime: 0
-  useSpriteFlip: 1
-  visualSprite: {fileID: 3102242681051972974}
   currentState: 0
   currentType: 1
 --- !u!95 &6384388940336513650
@@ -192,7 +196,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1707020517229559243}
   - component: {fileID: 5652929668547137540}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -257,7 +261,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: b61ef6e23e85d0e44a39ebd1b4a71ee5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

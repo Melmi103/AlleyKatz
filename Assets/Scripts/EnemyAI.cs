@@ -1,9 +1,5 @@
-using JetBrains.Annotations;
 using System;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
@@ -13,8 +9,8 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] public int meleeenemyHealth = 120;
     [SerializeField] public int rangedenemyHealth = 80;
     [SerializeField] public GameObject player;
-    [SerializeField] private Projectile projectile;
-    [SerializeField] private GameObject shot;
+    [SerializeField] public Projectile projectile;
+    [SerializeField] public GameObject shot;
     private Transform playerTransform;
 
 
@@ -32,33 +28,24 @@ public class EnemyAI : MonoBehaviour
     private float timer = 1f;
 
     [Header("Ranged Enemy Settings")]
-    [SerializeField] private float minSafeDistance = 5f;
+    [SerializeField] private float minSafeDistance = 10f;
     [SerializeField] private float fleeSpeed = 5f;
     [SerializeField] private float attackRange = 10f;
+    [SerializeField] public GameObject lastSpawnedProjectile;
     [SerializeField] private Animator animator;
+    [SerializeField] public GameObject ShotPrefab;
+    [SerializeField] float projectileSpeed = 10f;
+    [SerializeField] float lifeTime = 5f;
+   
+   
+    public Transform firePoint;
+    public float newFireRate = 1f;
+    public float newFireTime = 0f;
    
 
-    public float newFireRate;
-    public float newFireTime;
-
-
-
-    [Header("Xtras")]
-    [SerializeField] private bool useSpriteFlip = true;
-    [SerializeField] private SpriteRenderer visualSprite;
 
     private void Awake()
     {
-    
-        
-            if (shot == null)
-            {
-                shot = Resources.Load<GameObject>("Yarn");
-            }
-            else if (shot != null)
-            {
-                Debug.Log("Found Shot object");
-            }
 
         if (projectile == null)
         {
@@ -66,30 +53,30 @@ public class EnemyAI : MonoBehaviour
             if (shot != null)
             {
                 projectile = shot.GetComponent<Projectile>();
+                
+               
             }
        
             if (projectile != null)
             {
-                newFireRate = projectile.GetComponent<Projectile>().fireRate;
-                newFireTime = projectile.GetComponent<Projectile>().nextFireTime;
+                //newFireRate = projectile.GetComponent<Projectile>().fireRate;
+                //newFireTime = projectile.GetComponent<Projectile>().nextFireTime;
                 Debug.Log("Found projectile component");
-            }
 
+            }
             if (player == null)
             {
-                var Player = GameObject.FindWithTag("Player");
-                if (Player != null)
-                {
-                    player = Resources.Load<GameObject>("Player");
-                }
-                else return;
-
+                player = GameObject.FindGameObjectWithTag("Player");
+            }
+            if (player != null)
+            {
+                Debug.Log("Found player object!,");
             }
 
-
-
+            
         }
     }
+
 
 
 
@@ -157,7 +144,43 @@ public enum EnemyState
             }
         }
     }
+    public void RangeShootAtPlayer()
+    {
+        Vector3 aimDir = player.transform.position - firePoint.position;
+        aimDir.z = 0f;
+        aimDir.Normalize();
 
+
+        lastSpawnedProjectile = Instantiate(ShotPrefab, firePoint.position, Quaternion.identity);
+
+        Projectile proj = lastSpawnedProjectile.GetComponent<Projectile>();
+        proj.Init(aimDir, projectileSpeed);
+
+        Debug.Log("Shot!");
+
+        Destroy(lastSpawnedProjectile, lifeTime);
+
+
+
+
+
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("PlayerProjectile"))
+        {
+            Destroy(collision.gameObject);
+            if (currentType == EnemyType.melee)
+            {
+               meleeenemyHealth -= collision.GetComponent<Projectile>().damage;
+                OnHealthChanged?.Invoke(meleeenemyHealth);
+                if (meleeenemyHealth <= 0) 
+                {
+                    Die();
+                }
+            }
+        }
+    }
     private void Die()
     {
         Destroy(gameObject);
@@ -174,7 +197,7 @@ public enum EnemyState
     void Update()
     {
         Enemy();
-
+        
 
     }
 
@@ -257,6 +280,7 @@ public enum EnemyState
     // Enemy type and state management. (What they do when in the state)
     void Enemy()
     {
+        
         if (gameObject.CompareTag("MeleeEnemy"))
             currentType = EnemyType.melee;
 
@@ -308,52 +332,73 @@ public enum EnemyState
     }
     void RangedState()
     {
+        //Debug.Log(
+    //"Enemy: " + gameObject.name +
+   // " | State: " + currentState +
+    //" | Distance: " + Vector3.Distance(transform.position, player.transform.position) +
+   // " | Safe Distance: " + minSafeDistance +
+   // " | Attack Range: " + attackRange);
+
+
         switch (currentState)
         {
+            
             case EnemyState.Idle:
-              //  Debug.Log("RangedEnemy is Idle!");
-                if (Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
-                {
-                    SetState(EnemyState.Flee);
-                }
-                if (Vector3.Distance(transform.position, player.transform.position) < attackRange && Vector3.Distance(transform.position, player.transform.position) > minSafeDistance)
-                {
-                   SetState(EnemyState.Attack);
-                }
-                animator.SetBool("IsRunning", false);
-                break;
-            case EnemyState.Attack:
-                // Debug.Log("RangedEnemy is Attacking!");
-                if (Time.time >= newFireTime)
-                {
-                    newFireTime = Time.time + 1f / newFireRate;
-                    projectile.GetComponent<Projectile>().RangeShootAtPlayer();
-                }
-                FacePlayer();
-                if (Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
-                {
-                    SetState(EnemyState.Flee);
-                   
-                
-                }
-                animator.SetBool("IsRunning", false);
-                break;
-            case EnemyState.Flee:
-                if (Vector3.Distance(transform.position, player.transform.position) > minSafeDistance)
-                {
-                 
+            //Debug.Log("RangedEnemy is Idle!");
+            if (Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
+            {
+                SetState(EnemyState.Flee);
+            }
+            if (Vector3.Distance(transform.position, player.transform.position) < attackRange && Vector3.Distance(transform.position, player.transform.position) > minSafeDistance)
+            {
+                SetState(EnemyState.Attack);
+            }
+            animator.SetBool("IsRunning", false);
+            break;
+        case EnemyState.Attack:
+            //Debug.Log("RangedEnemy is Attacking!");
+            if (Time.time >= newFireTime)
+            {
+                newFireTime = Time.time + 1f / newFireRate;
+                RangeShootAtPlayer();
 
-                    SetState(EnemyState.Idle);
-                  //Debug.Log("RangedEnemy is Idle!");
-               }
+
+                GameObject spawned = Instantiate(shot, transform.position, Quaternion.identity);
+                var spawnedProj = spawned.GetComponent<Projectile>();
+                if (spawnedProj != null)
+                {
+                    Vector3 aimDir = player.transform.position - transform.position;
+                    aimDir.z = 0f;
+                    aimDir.Normalize();
+                    spawnedProj.Init(aimDir, spawnedProj.projectileSpeed);
+                }
                 else
                 {
-                   // Debug.Log("RangedEnemy is Fleeing!");
-                    FleeFromPlayer();
+                    Debug.LogWarning("EnemyAI.Attack: spawned shot missing Projectile component.");
                 }
-                animator.SetBool("IsRunning", true);
-                break;
+            }
 
+            FacePlayer();
+            if (Vector3.Distance(transform.position, player.transform.position) < minSafeDistance)
+            {
+                SetState(EnemyState.Flee);
+                //Debug.Log("Enemy is fleeing!!");
+
+            }
+            animator.SetBool("IsRunning", false);
+            break;
+        case EnemyState.Flee:
+
+          //  Debug.Log("Distance: " + Vector3.Distance(transform.position, player.transform.position));
+                if (Vector3.Distance(transform.position, player.transform.position) > minSafeDistance)
+            {
+
+                //Debug.Log("RangedEnemy is Fleeing!");
+                FleeFromPlayer();
+            }
+            animator.SetBool("IsRunning", true);
+            break;
+        
         }
     }
 

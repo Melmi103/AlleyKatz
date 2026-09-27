@@ -1,14 +1,31 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-            [SerializeField] private GameObject enemyMelee;
-            [SerializeField] private GameObject enemyRanged;
+            [SerializeField] public GameObject enemyMelee;
+            [SerializeField] public GameObject enemyRanged;
 
-            [SerializeField] private float MeleeswarmerInterval = 3.5f;
-            [SerializeField] private float RangedswarmerInterval = 5.0f;
-            [SerializeField] private float buffer = 1.5f;
+            [SerializeField] private float MeleeswarmerInterval = 3f;
+            [SerializeField] private float RangedswarmerInterval = 0f;
+            [SerializeField] private float buffer = 0f;
+            [SerializeField] private int currentLevel = 1;
+            [SerializeField] private int meleeEnemiesToSpawn = 0;
+            [SerializeField] private int rangedEnemiesToSpawn = 0;
+
+            public static Vector3 RandomSpawnPositionAround(Transform spawner, float width = 10f, float height = 10f)
+    {
+        float halfW = width * 0.5f;
+        float halfH = height * 0.5f;
+
+        float randomX = Random.Range(-halfW, halfW);
+        float randomY = Random.Range(-halfH, halfH);
+        float z = spawner.position.z;
+
+        return new Vector3(spawner.position.x + randomX, spawner.position.y, spawner.position.z + randomY);
+
+    }
 
             private void Awake()
             {
@@ -16,7 +33,7 @@ public class GameManager : MonoBehaviour
                 if (enemyMelee == null)
                 {
                     enemyMelee = Resources.Load<GameObject>("EnemyMelee");
-            if (enemyMelee == null)
+            if (enemyMelee != null)
             {
                 return;
             }
@@ -26,7 +43,7 @@ public class GameManager : MonoBehaviour
         if (enemyRanged == null)
         {
             enemyRanged = Resources.Load<GameObject>("EnemyRanged");
-            if (enemyRanged == null)
+            if (enemyRanged != null)
             {
                 return;
             }
@@ -35,35 +52,78 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-       StartCoroutine(spawnMeleeEnemy(MeleeswarmerInterval, enemyMelee));
-       StartCoroutine(spawnRangedEnemy(RangedswarmerInterval, enemyRanged));
+        //StartCoroutine(spawnMeleeEnemy(MeleeswarmerInterval, enemyMelee));
+        //StartCoroutine(spawnRangedEnemy(RangedswarmerInterval, enemyRanged));
+        levelOne();
+
     }
 
     private IEnumerator spawnMeleeEnemy(float interval, GameObject enemyMelee)
     {
-        yield return new WaitForSeconds(interval);
-        if (enemyMelee != null)
+        for (int i = 0; i < meleeEnemiesToSpawn; i++)
         {
-            Instantiate(enemyMelee, new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f)), Quaternion.identity);
+            yield return new WaitForSeconds(interval);
+            if (enemyMelee != null)
+            {
+                var spawnPosition = RandomSpawnPositionAround(transform, 10f, 10f);
+                Instantiate(enemyMelee, spawnPosition, Quaternion.identity);
+            }
+            else
+            {
+                Debug.LogWarning("Cannot spawn melee enemy: prefab is null.");
+            }
+            
         }
-        else
-        {
-            Debug.LogWarning("Cannot spawn melee enemy: prefab is null.");
-        }
-        StartCoroutine(spawnMeleeEnemy(interval, enemyMelee));
     }
 
     private IEnumerator spawnRangedEnemy(float interval, GameObject enemyRanged)
     {
-        yield return new WaitForSeconds(interval);
-        if (enemyRanged != null)
+
+        for (int i = 0; i < rangedEnemiesToSpawn; i++)
         {
-            Instantiate(enemyRanged, new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f)), Quaternion.identity);
+            yield return new WaitForSeconds(interval);
+            if (enemyRanged != null)
+            {
+                Instantiate(enemyRanged, new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f)), Quaternion.identity);
+            }
+            else
+            {
+                Debug.LogWarning("Cannot spawn ranged enemy: prefab is null.");
+            }
         }
-        else
-        {
-            Debug.LogWarning("Cannot spawn ranged enemy: prefab is null.");
-        }
-        StartCoroutine(spawnRangedEnemy(interval, enemyRanged));
+    }
+
+    void levelOne()
+    {
+        meleeEnemiesToSpawn = 30;
+        StartCoroutine(spawnMeleeEnemy(MeleeswarmerInterval, enemyMelee));
+        StartCoroutine(spawnRangedEnemy(RangedswarmerInterval, enemyRanged));
+
+
+    }
+
+    void LevelTwo()
+    {
+
+    }
+
+    void LevelThree()
+    {
+
+    }
+
+    void LevelFour()
+    {
+
+    }
+
+    void LevelFive()
+    {
+
+    }
+    private void OnLevelWasLoaded(int level)
+    {
+
+        
     }
 }

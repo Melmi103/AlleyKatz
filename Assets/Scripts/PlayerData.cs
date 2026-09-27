@@ -1,5 +1,8 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.SocialPlatforms;
 //This script manages the player's weapon state, sprites, animations, interactions with pickups, health and communicates weapon changes to other components.
 
 
@@ -18,7 +21,10 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private GameObject hand;
     [SerializeField] private GameObject EnemyRanged;
     [SerializeField] private GameObject EnemyMelee;
-  
+    [SerializeField] public GameObject shot;
+    [SerializeField] private float lifetime = 5f;
+   
+
     public event Action<WeaponType> OnWeaponChanged;
     public event Action<int> OnHealthChanged;
 
@@ -42,6 +48,14 @@ public class PlayerData : MonoBehaviour
         {
             Debug.Log("Found Melee Enemy object");
         }
+        if (shot == null)
+        {
+            shot = GameObject.FindGameObjectWithTag("Yarn");
+        }
+        else if (shot != null)
+        {
+            Debug.Log("Found Shot");
+        }    
 
     }
 
@@ -115,24 +129,40 @@ public class PlayerData : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("KnifeCrate"))
+     
+    }
+    void Shoot()
+    {
+        Debug.Log("Shoot function called!");
+
+        Vector3 mousePos = Mouse.current.position.ReadValue();
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
+        Vector3 aimDir = mouseWorldPos - hand.transform.position;
+        aimDir.z = 0f;
+        aimDir.Normalize();
+
+       
+        Vector3 spawnPos = hand.transform.position + aimDir * 0.5f;
+        GameObject spawned = Instantiate(shot, spawnPos, Quaternion.identity);
+
+        var spawnedProj = spawned.GetComponent<Projectile>();
+        if (spawnedProj != null)
         {
-            Debug.Log("Crate 2 hit. Switching to Fire.");
-            Fire();
-            Destroy(collision.gameObject);
+            spawnedProj.Init(aimDir, spawnedProj.projectileSpeed);
+            Debug.Log("Shot spawned");
         }
-        else if (collision.gameObject.CompareTag("HatchetCrate"))
-        {
-            Debug.Log("Crate 3 hit. Switching to Ice.");
-            Ice();
-            Destroy(collision.gameObject);
-        }
+        Destroy(spawned, lifetime);
     }
 
     void Update()
     {
         Weapon();
-        
 
+      
+        bool clicked = (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) || Input.GetMouseButtonDown(0);
+        if (clicked)
+        {
+            Shoot();
+        }
     }
 }
