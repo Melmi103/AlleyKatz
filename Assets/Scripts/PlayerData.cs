@@ -23,7 +23,8 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private GameObject EnemyMelee;
     [SerializeField] public GameObject shot;
     [SerializeField] private float lifetime = 5f;
-    [SerializeField] private float cooldown = 2f;
+    [SerializeField] private float cooldown = 0f;
+    
     
 
     private float lastShotTime = -Mathf.Infinity;
@@ -41,7 +42,7 @@ public class PlayerData : MonoBehaviour
         }
         else if (EnemyRanged != null)
         {
-            Debug.Log("Found Ranged Enemy object");
+            //Debug.Log("Found Ranged Enemy object");
         }
         if (EnemyMelee == null)
         {
@@ -49,7 +50,7 @@ public class PlayerData : MonoBehaviour
         }
         else if (EnemyMelee != null)
         {
-            Debug.Log("Found Melee Enemy object");
+            //Debug.Log("Found Melee Enemy object");
         }
         if (shot == null)
         {
@@ -57,7 +58,7 @@ public class PlayerData : MonoBehaviour
         }
         else if (shot != null)
         {
-            Debug.Log("Found Shot");
+            //Debug.Log("Found Shot");
         }    
         
 
@@ -110,7 +111,7 @@ public class PlayerData : MonoBehaviour
                 Ice();
                 break;
             default:
-                Debug.Log("No weapon selected. Switching to default.");
+                //Debug.Log("No weapon selected. Switching to default.");
                 break;
         }
     }
@@ -141,7 +142,7 @@ public class PlayerData : MonoBehaviour
         if (collision.CompareTag("MeleeEnemy"))
         {
             SetHealth(playerhealth - 10);
-            Debug.Log("Player hit! Health: " + playerhealth);
+            //Debug.Log("Player hit! Health: " + playerhealth);
             if (playerhealth <= 0)
             {
                 Destroy(gameObject);
@@ -151,7 +152,7 @@ public class PlayerData : MonoBehaviour
     }
     void Shoot()
     {
-        Debug.Log("Shoot function called!");
+        //Debug.Log("Shoot function called!");
 
         Vector3 mousePos = Mouse.current.position.ReadValue();
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
@@ -167,8 +168,9 @@ public class PlayerData : MonoBehaviour
         if (spawnedProj != null)
         {
             spawnedProj.Init(aimDir, spawnedProj.projectileSpeed);
-            Debug.Log("Shot spawned");
+            //Debug.Log("Shot spawned");
         }
+        
         Destroy(spawned, lifetime);
     }
 
@@ -176,13 +178,12 @@ public class PlayerData : MonoBehaviour
     {
         Weapon();
 
-      
         bool clicked = (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) || Input.GetMouseButtonDown(0);
+
         if (clicked && Time.time - lastShotTime >= cooldown)
         {
-      
-                Shoot();
             lastShotTime = Time.time;
+            Shoot();
         }
     }
 }

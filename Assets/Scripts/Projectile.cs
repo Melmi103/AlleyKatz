@@ -11,8 +11,12 @@ public class Projectile : MonoBehaviour
     [SerializeField] float lifetime = 5f;
     [SerializeField] public float projectileSpeed = 1;
     [SerializeField] public int damage = 20;
-   
-    
+
+    private AudioSource audioSource;
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip shotSFX;
+    [SerializeField] private float sfxVolume = 1.0f;
+
     private Rigidbody2D rb;
     private Transform playerTransform;
     private PlayerData PlayerData;
@@ -38,7 +42,14 @@ public class Projectile : MonoBehaviour
         {
             Debug.Log("Found PlayerHealth component");
         }
-       
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 0f; 
+        }
+
     }
 
 
@@ -52,7 +63,10 @@ public class Projectile : MonoBehaviour
         if (rb != null)
             rb.linearVelocity = direction.normalized * speed;
 
-
+        if (shotSFX != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(shotSFX, sfxVolume);
+        }
     }
 
   

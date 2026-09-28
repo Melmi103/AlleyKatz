@@ -1,7 +1,6 @@
 using NUnit.Framework.Internal;
 using System;
 using System.Collections;
-using UnityEditor.SearchService;
 using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
@@ -41,8 +40,10 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] public GameObject ShotPrefab;
     [SerializeField] float projectileSpeed = 10f;
     [SerializeField] float lifeTime = 5f;
-   
-   
+
+    private AudioSource audioSource;
+
+
     public Transform firePoint;
     public float newFireRate = 1f;
     public float newFireTime = 0f;
@@ -66,7 +67,7 @@ public class EnemyAI : MonoBehaviour
             {
                 //newFireRate = projectile.GetComponent<Projectile>().fireRate;
                 //newFireTime = projectile.GetComponent<Projectile>().nextFireTime;
-                Debug.Log("Found projectile component");
+                //Debug.Log("Found projectile component");
 
             }
             if (player == null)
@@ -75,7 +76,7 @@ public class EnemyAI : MonoBehaviour
             }
             if (player != null)
             {
-                Debug.Log("Found player object!,");
+                //Debug.Log("Found player object!,");
             }
 
             
@@ -162,7 +163,7 @@ public enum EnemyState
         Projectile proj = lastSpawnedProjectile.GetComponent<Projectile>();
         proj.Init(aimDir, projectileSpeed);
 
-        Debug.Log("Shot!");
+        //Debug.Log("Shot!");
 
         Destroy(lastSpawnedProjectile, lifeTime);
 
@@ -195,8 +196,8 @@ public enum EnemyState
     void Start()
     {
         SetState(EnemyState.Idle);
-        Debug.Log("Melee Enemy Health: " + meleeenemyHealth);
-        Debug.Log("Ranged Enemy Health: " + rangedenemyHealth);
+        //Debug.Log("Melee Enemy Health: " + meleeenemyHealth);
+        //Debug.Log("Ranged Enemy Health: " + rangedenemyHealth);
     }
 
    

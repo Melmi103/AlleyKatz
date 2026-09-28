@@ -1,99 +1,143 @@
 using System.Collections;
-using Unity.VisualScripting;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-            [SerializeField] public GameObject enemyMelee;
-            [SerializeField] public GameObject enemyRanged;
+    public static GameManager Instance { get; private set; }
 
-            [SerializeField] private float MeleeswarmerInterval = 3f;
-            [SerializeField] private float RangedswarmerInterval = 0f;
-            [SerializeField] private float buffer = 0f;
-            [SerializeField] private int currentLevel = 1;
-            [SerializeField] private int meleeEnemiesToSpawn = 0;
-            [SerializeField] private int rangedEnemiesToSpawn = 0;
-             private int enemiesLeft = 0;
+    [SerializeField] public GameObject enemyMelee;
+    [SerializeField] public GameObject enemyRanged;
 
-            public static Vector3 RandomSpawnPositionAround(Transform spawner, float width = 10f, float height = 10f)
+    [Header("Spawn area")]
+    [SerializeField] private float spawnMinRadius = 20f;
+    [SerializeField] private float spawnMaxRadius = 50f;
+    [SerializeField] private float minSpacing = 2f;
+    [SerializeField] private int maxSpawnAttempts = 12;
+
+    [Header("Wave / timing")]
+    [SerializeField] private float MeleeswarmerInterval = 3f;
+    [SerializeField] private float RangedswarmerInterval = 0f;
+    [SerializeField] private float buffer = 0f;
+    [SerializeField] private int currentLevel = 1;
+
+    
+    [SerializeField] private int meleeEnemiesToSpawn = 0;
+    [SerializeField] private int rangedEnemiesToSpawn = 0;
+
+    
+    private int enemiesLeft = 0;
+
+    private void Awake()
     {
-        float halfW = width * 0.5f;
-        float halfH = height * 0.5f;
+        
+        if (Instance == null) Instance = this;
+        else if (Instance != this) Destroy(gameObject);
 
-        float randomX = Random.Range(-halfW, halfW);
-        float randomY = Random.Range(-halfH, halfH);
-        float z = spawner.position.z;
-
-        return new Vector3(spawner.position.x + randomX, spawner.position.y, spawner.position.z + randomY);
-
-    }
-
-            private void Awake()
-            {
-                
-                if (enemyMelee == null)
-                {
-                    enemyMelee = Resources.Load<GameObject>("EnemyMelee");
-            if (enemyMelee != null)
-            {
-                return;
-            }
-       
-        }
+        
+        if (enemyMelee == null)
+            enemyMelee = Resources.Load<GameObject>("EnemyMelee");
 
         if (enemyRanged == null)
-        {
             enemyRanged = Resources.Load<GameObject>("EnemyRanged");
-            if (enemyRanged != null)
-            {
-                return;
-            }
-        }
-        
-        enemiesLeft = meleeEnemiesToSpawn + rangedEnemiesToSpawn;
+
+       
+        enemiesLeft = 0;
     }
 
     void Start()
     {
-        //StartCoroutine(spawnMeleeEnemy(MeleeswarmerInterval, enemyMelee));
-        //StartCoroutine(spawnRangedEnemy(RangedswarmerInterval, enemyRanged));
-        levelOne();
         
-
-        if (enemiesLeft == 0)
-        {
-            Debug.Log("All enemies have been spawned.");
-        }
-
+        StartCoroutine(RunLevels());
     }
 
-    private IEnumerator spawnMeleeEnemy(float interval, GameObject enemyMelee)
+
+    private IEnumerator RunLevels()
     {
-        for (int i = 0; i < meleeEnemiesToSpawn; i++)
+        yield return StartCoroutine(RunLevel(1, 10, 0));   
+        yield return StartCoroutine(RunLevel(2, 25, 0));  
+        yield return StartCoroutine(RunLevel(3, 50, 0));   
+        // all levels cleared
+        LoadScene("WinScene");
+    }
+
+
+    private IEnumerator RunLevel(int levelNumber, int meleeCount, int rangedCount)
+    {
+        currentLevel = levelNumber;
+        meleeEnemiesToSpawn = meleeCount;
+        rangedEnemiesToSpawn = rangedCount;
+
+        Debug.Log($"Level {levelNumber} started: spawning {meleeCount} melee and {rangedCount} ranged.");
+
+       
+        if (meleeCount > 0)
+            StartCoroutine(spawnMeleeEnemy(MeleeswarmerInterval, enemyMelee, meleeCount));
+
+        if (rangedCount > 0)
+            StartCoroutine(spawnRangedEnemy(RangedswarmerInterval, enemyRanged, rangedCount));
+
+        
+        yield return new WaitUntil(() => enemiesLeft == 0);
+
+        Debug.Log($"Level {levelNumber} cleared.");
+  
+        if (buffer > 0f) yield return new WaitForSeconds(buffer);
+    }
+
+    private IEnumerator spawnMeleeEnemy(float interval, GameObject prefab, int count)
+    {
+        var spawnedPositions = new List<Vector3>();
+
+        for (int i = 0; i < count; i++)
         {
             yield return new WaitForSeconds(interval);
-            if (enemyMelee != null)
+
+            if (prefab != null)
             {
-                var spawnPosition = RandomSpawnPositionAround(transform, 10f, 10f);
-                Instantiate(enemyMelee, spawnPosition, Quaternion.identity);
+                var spawnPosition = GetNonOverlappingSpawnPosition(spawnedPositions, transform);
+                spawnedPositions.Add(spawnPosition);
+
+                var go = Instantiate(prefab, spawnPosition, Quaternion.identity);
+
+              
+                if (string.IsNullOrEmpty(go.tag) || go.tag == "Untagged")
+                {
+                    try { go.tag = "Enemy"; } catch {}
+                }
+
+            
+                enemiesLeft++;
             }
             else
             {
                 Debug.LogWarning("Cannot spawn melee enemy: prefab is null.");
             }
-            
         }
     }
 
-    private IEnumerator spawnRangedEnemy(float interval, GameObject enemyRanged)
+    private IEnumerator spawnRangedEnemy(float interval, GameObject prefab, int count)
     {
+        var spawnedPositions = new List<Vector3>();
 
-        for (int i = 0; i < rangedEnemiesToSpawn; i++)
+        for (int i = 0; i < count; i++)
         {
-            yield return new WaitForSeconds(0);
-            if (enemyRanged != null)
+            yield return new WaitForSeconds(interval);
+
+            if (prefab != null)
             {
-                Instantiate(enemyRanged, new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f)), Quaternion.identity);
+                var spawnPosition = GetNonOverlappingSpawnPosition(spawnedPositions, transform);
+                spawnedPositions.Add(spawnPosition);
+
+                var go = Instantiate(prefab, spawnPosition, Quaternion.identity);
+
+                if (string.IsNullOrEmpty(go.tag) || go.tag == "Untagged")
+                {
+                    try { go.tag = "Enemy"; } catch { }
+                }
+
+                enemiesLeft++;
             }
             else
             {
@@ -102,38 +146,44 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void levelOne()
+    
+    public void NotifyEnemyDied()
     {
-        meleeEnemiesToSpawn = 10;
-        
-        StartCoroutine(spawnMeleeEnemy(MeleeswarmerInterval, enemyMelee));
-        StartCoroutine(spawnRangedEnemy(RangedswarmerInterval, enemyRanged));
-
-
+        enemiesLeft = Mathf.Max(0, enemiesLeft - 1);
     }
 
-    void LevelTwo()
+    
+    private Vector3 GetNonOverlappingSpawnPosition(List<Vector3> existingPositions, Transform spawner)
     {
+        for (int attempt = 0; attempt < maxSpawnAttempts; attempt++)
+        {
+            float angle = Random.Range(0f, Mathf.PI * 2f);
+            float radius = Random.Range(spawnMinRadius, spawnMaxRadius);
+            float x = spawner.position.x + Mathf.Cos(angle) * radius;
+            float z = spawner.position.z + Mathf.Sin(angle) * radius;
+            Vector3 candidate = new Vector3(x, spawner.position.y, z);
 
+            bool ok = true;
+            for (int i = 0; i < existingPositions.Count; i++)
+            {
+                if (Vector3.Distance(candidate, existingPositions[i]) < minSpacing)
+                {
+                    ok = false;
+                    break;
+                }
+            }
+
+            if (ok)
+                return candidate;
+        }
+
+        float fallbackAngle = Random.Range(0f, Mathf.PI * 2f);
+        float fallbackRadius = Random.Range(spawnMinRadius, spawnMaxRadius);
+        return new Vector3(spawner.position.x + Mathf.Cos(fallbackAngle) * fallbackRadius, spawner.position.y, spawner.position.z + Mathf.Sin(fallbackAngle) * fallbackRadius);
     }
 
-    void LevelThree()
+    public void LoadScene(string sceneName)
     {
-
-    }
-
-    void LevelFour()
-    {
-
-    }
-
-    void LevelFive()
-    {
-
-    }
-    private void OnLevelWasLoaded(int level)
-    {
-
-        
+        SceneManager.LoadScene(sceneName);
     }
 }
